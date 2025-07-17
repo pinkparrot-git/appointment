@@ -33,9 +33,6 @@ public class HospitalServiceImplTest {
     @Mock
     private PatientRepository patientRepository;
 
-    @Mock
-    private HospitalUtils hospitalUtils;
-
     @InjectMocks
     private HospitalServiceImpl hospitalService;
 
