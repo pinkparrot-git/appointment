@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.gerimedica.assignment.domain.Appointment;
 import nl.gerimedica.assignment.domain.Patient;
+import nl.gerimedica.assignment.model.AppointmentRequestDTO;
 import nl.gerimedica.assignment.repository.AppointmentRepository;
 import nl.gerimedica.assignment.repository.PatientRepository;
 import nl.gerimedica.assignment.service.HospitalService;
 import nl.gerimedica.assignment.utils.HospitalUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,27 +22,24 @@ import java.util.List;
 public class HospitalServiceImpl implements HospitalService {
     private final PatientRepository patientRepo;
     private final AppointmentRepository appointmentRepo;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public List<Appointment> bulkCreateAppointments(
-            String patientName,
-            String ssn,
-            List<String> reasons,
-            List<String> dates
-    ) {
-        Patient found = findPatientBySSN(ssn);
+
+    public List<Appointment> bulkCreateAppointments(AppointmentRequestDTO request) {
+        Patient found = findPatientBySSN(request.getSsn());
         if (found == null) {
-            log.info("Creating new patient with SSN: {}", ssn);
-            found = new Patient(patientName, ssn);
+            log.info("Creating new patient with SSN: {}", request.getSsn());
+            found = new Patient(request.getPatientName(), request.getSsn());
             savePatient(found);
         } else {
             log.info("Existing patient found, SSN: {}", found.ssn);
         }
 
         List<Appointment> createdAppointments = new ArrayList<>();
-        int loopSize = Math.min(reasons.size(), dates.size());
+        int loopSize = Math.min(request.getReasons().size(), request.getDates().size());
         for (int i = 0; i < loopSize; i++) {
-            String reason = reasons.get(i);
-            String date = dates.get(i);
+            String reason = request.getReasons().get(i);
+            String date =  request.getDates().get(i).format(DATE_FORMATTER);
             Appointment appt = new Appointment(reason, date, found);
             createdAppointments.add(appt);
         }
@@ -51,7 +49,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         for (Appointment appt : createdAppointments) {
-            log.info("Created appointment for reason: {} [Date: {}] [Patient SSN: {}]", appt.reason, appt.date, appt.patient.ssn );
+            log.info("Created appointment for reason: {} [Date: {}] [Patient SSN: {}]", appt.reason, appt.date, appt.patient.ssn);
         }
 
         HospitalUtils.recordUsage("Bulk create appointments");
