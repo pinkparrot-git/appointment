@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.gerimedica.assignment.domain.Appointment;
 import nl.gerimedica.assignment.model.AppointmentRequestDTO;
+import nl.gerimedica.assignment.model.AppointmentResponseDTO;
 import nl.gerimedica.assignment.service.HospitalService;
 import nl.gerimedica.assignment.utils.HospitalUtils;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +46,12 @@ public class AppointmentController {
             }
     )
     @PostMapping("/bulk")
-    public ResponseEntity<List<Appointment>> createBulkAppointments(
+    public ResponseEntity<List<AppointmentResponseDTO>> createBulkAppointments(
             @Valid @RequestBody AppointmentRequestDTO request) {
 
         HospitalUtils.recordUsage("Bulk appointments creation triggered");
 
-        List<Appointment> createdAppointments = hospitalService.bulkCreateAppointments(request);
+        List<AppointmentResponseDTO> createdAppointments = hospitalService.createBulkAppointments(request);
 
         return ResponseEntity
                 .created(URI.create("/api/v1/appointments"))
@@ -65,10 +66,10 @@ public class AppointmentController {
                             schema = @Schema(implementation = Appointment.class)))
     )
     @GetMapping
-    public ResponseEntity<List<Appointment>> getAppointmentsByReason(
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByReason(
             @RequestParam(required = false) String reason) {
 
-        List<Appointment> appointments = hospitalService.getAppointmentsByReason(reason);
+        List<AppointmentResponseDTO> appointments = hospitalService.getAppointmentsByReason(reason);
         return ResponseEntity.ok(appointments);
     }
 
@@ -97,8 +98,8 @@ public class AppointmentController {
             }
     )
     @GetMapping("/latest")
-    public ResponseEntity<Appointment> getLatestAppointment(@RequestParam String ssn) {
-        Appointment latest = hospitalService.findLatestAppointmentBySSN(ssn);
+    public ResponseEntity<AppointmentResponseDTO> getLatestAppointment(@RequestParam String ssn) {
+        AppointmentResponseDTO latest = hospitalService.findLatestAppointmentBySSN(ssn);
         return latest != null ? ResponseEntity.ok(latest) : ResponseEntity.notFound().build();
     }
 }

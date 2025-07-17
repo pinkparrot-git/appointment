@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.gerimedica.assignment.domain.Appointment;
 import nl.gerimedica.assignment.domain.Patient;
+import nl.gerimedica.assignment.mapper.AppointmentMapper;
 import nl.gerimedica.assignment.model.AppointmentRequestDTO;
+import nl.gerimedica.assignment.model.AppointmentResponseDTO;
 import nl.gerimedica.assignment.repository.AppointmentRepository;
 import nl.gerimedica.assignment.repository.PatientRepository;
 import nl.gerimedica.assignment.service.HospitalService;
@@ -25,12 +27,13 @@ public class HospitalServiceImpl implements HospitalService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
-    public List<Appointment> bulkCreateAppointments(AppointmentRequestDTO request) {
+    @Transactional
+    public List<AppointmentResponseDTO> createBulkAppointments(AppointmentRequestDTO request) {
         Patient found = findPatientBySSN(request.getSsn());
         if (found == null) {
             log.info("Creating new patient with SSN: {}", request.getSsn());
             found = new Patient(request.getPatientName(), request.getSsn());
-            savePatient(found);
+            patientRepo.save(found);
         } else {
             log.info("Existing patient found, SSN: {}", found.ssn);
         }
@@ -44,9 +47,7 @@ public class HospitalServiceImpl implements HospitalService {
             createdAppointments.add(appt);
         }
 
-        for (Appointment appt : createdAppointments) {
-            appointmentRepo.save(appt);
-        }
+        appointmentRepo.saveAll(createdAppointments);
 
         for (Appointment appt : createdAppointments) {
             log.info("Created appointment for reason: {} [Date: {}] [Patient SSN: {}]", appt.reason, appt.date, appt.patient.ssn);
@@ -54,10 +55,10 @@ public class HospitalServiceImpl implements HospitalService {
 
         HospitalUtils.recordUsage("Bulk create appointments");
 
-        return createdAppointments;
+        return AppointmentMapper.toDtoList(createdAppointments);
     }
 
-    public Patient findPatientBySSN(String ssn) {
+    private Patient findPatientBySSN(String ssn) {
         List<Patient> all = patientRepo.findAll();
         for (Patient p : all) {
             if (p.ssn.equals(ssn)) {
@@ -67,12 +68,7 @@ public class HospitalServiceImpl implements HospitalService {
         return null;
     }
 
-    @Transactional
-    public void savePatient(Patient patient) {
-        patientRepo.save(patient);
-    }
-
-    public List<Appointment> getAppointmentsByReason(String reasonKeyword) {
+    public List<AppointmentResponseDTO> getAppointmentsByReason(String reasonKeyword) {
         List<Appointment> allAppointments = appointmentRepo.findAll();
         List<Appointment> matched = new ArrayList<>();
 
@@ -89,10 +85,9 @@ public class HospitalServiceImpl implements HospitalService {
             }
         }
 
-        HospitalUtils utils = new HospitalUtils();
-        utils.recordUsage("Get appointments by reason");
+        HospitalUtils.recordUsage("Get appointments by reason");
 
-        return finalList;
+        return AppointmentMapper.toDtoList(finalList);
     }
 
     public void deleteAppointmentsBySSN(String ssn) {
@@ -104,7 +99,7 @@ public class HospitalServiceImpl implements HospitalService {
         appointmentRepo.deleteAll(appointments);
     }
 
-    public Appointment findLatestAppointmentBySSN(String ssn) {
+    public AppointmentResponseDTO findLatestAppointmentBySSN(String ssn) {
         Patient patient = findPatientBySSN(ssn);
         if (patient == null || patient.appointments == null || patient.appointments.isEmpty()) {
             return null;
@@ -121,6 +116,6 @@ public class HospitalServiceImpl implements HospitalService {
             }
         }
 
-        return latest;
+        return AppointmentMapper.toDto(latest);
     }
 }
