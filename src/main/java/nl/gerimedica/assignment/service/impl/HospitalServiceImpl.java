@@ -1,6 +1,13 @@
-package nl.gerimedica.assignment;
+package nl.gerimedica.assignment.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.gerimedica.assignment.domain.Appointment;
+import nl.gerimedica.assignment.domain.Patient;
+import nl.gerimedica.assignment.repository.AppointmentRepository;
+import nl.gerimedica.assignment.repository.PatientRepository;
+import nl.gerimedica.assignment.service.HospitalService;
+import nl.gerimedica.assignment.utils.HospitalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,11 +17,10 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class HospitalService {
-    @Autowired
-    PatientRepository patientRepo;
-    @Autowired
-    AppointmentRepository appointmentRepo;
+@RequiredArgsConstructor
+public class HospitalServiceImpl implements HospitalService {
+    private final PatientRepository patientRepo;
+    private final AppointmentRepository appointmentRepo;
 
     public List<Appointment> bulkCreateAppointments(
             String patientName,
@@ -64,7 +70,7 @@ public class HospitalService {
     }
 
     @Transactional
-    void savePatient(Patient patient) {
+    public void savePatient(Patient patient) {
         patientRepo.save(patient);
     }
 

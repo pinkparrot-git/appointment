@@ -1,10 +1,14 @@
-package nl.gerimedica.assignment;
+package nl.gerimedica.assignment.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
+@Getter
+@Setter
 public class Appointment {
 
     @Id
@@ -12,7 +16,7 @@ public class Appointment {
     public Long id;
     public String reason;
     public String date;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "patient_id")
     public Patient patient;
 

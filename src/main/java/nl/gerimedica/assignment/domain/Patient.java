@@ -1,19 +1,24 @@
-package nl.gerimedica.assignment;
+package nl.gerimedica.assignment.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Getter
+@Setter
 public class Patient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
     public String name;
+    @Column(unique = true)
     public String ssn;
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, orphanRemoval = true)
     public List<Appointment> appointments;
 
     public Patient() {
