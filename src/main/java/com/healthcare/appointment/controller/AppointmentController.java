@@ -1,5 +1,8 @@
-package com.healthcare.appointment;
+package com.healthcare.appointment.controller;
 
+import com.healthcare.appointment.entity.Appointment;
+import com.healthcare.appointment.service.HospitalService;
+import com.healthcare.appointment.Utility.HospitalUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

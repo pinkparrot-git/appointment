@@ -1,4 +1,4 @@
-package com.healthcare.appointment;
+package com.healthcare.appointment.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
