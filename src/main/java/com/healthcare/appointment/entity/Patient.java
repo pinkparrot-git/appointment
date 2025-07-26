@@ -1,23 +1,25 @@
 package com.healthcare.appointment.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Patient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-    public String name;
+    private Long id;
+    private String name;
     @Column(unique = true, nullable = false)
-    public String ssn;
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
-    public List<Appointment> appointments;
+    private String ssn;
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointments;
 
     public Patient() {
     }
@@ -30,12 +32,13 @@ public class Patient {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Patient patient)) return false;
-        return Objects.equals(ssn, patient.ssn);
+        if (!(o instanceof Patient)) return false;
+        Patient other = (Patient) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ssn);
+        return Objects.hashCode(id);
     }
 }

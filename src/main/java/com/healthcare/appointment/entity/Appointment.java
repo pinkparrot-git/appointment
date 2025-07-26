@@ -1,22 +1,24 @@
 package com.healthcare.appointment.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-    public String reason;
-    public String date;
+    private Long id;
+    private String reason;
+    private String date;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
-    public Patient patient;
+    private Patient patient;
 
     public Appointment() {
     }
@@ -30,12 +32,13 @@ public class Appointment {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Appointment that)) return false;
-        return Objects.equals(reason, that.reason);
+        if (!(o instanceof Appointment)) return false;
+        Appointment other = (Appointment) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(reason);
+        return Objects.hashCode(id);
     }
 }

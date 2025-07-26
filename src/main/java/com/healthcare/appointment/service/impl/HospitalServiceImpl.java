@@ -37,7 +37,7 @@ public class HospitalServiceImpl implements HospitalService {
             patient = new Patient(requestDto.getPatientName(), requestDto.getSsn());
             patientRepo.save(patient);
         } else {
-            log.info("Existing patient found, SSN: {}", patient.ssn);
+            log.info("Existing patient found, SSN: {}", patient.getSsn());
         }
 
         List<Appointment> createdAppointments = new ArrayList<>();
@@ -52,7 +52,7 @@ public class HospitalServiceImpl implements HospitalService {
         appointmentRepo.saveAll(createdAppointments);
 
         for (Appointment appt : createdAppointments) {
-            log.info("Created appointment for reason: {} [Date: {}] [Patient SSN: {}]", appt.reason, appt.date, appt.patient.ssn);
+            log.info("Created appointment for reason: {} [Date: {}] [Patient SSN: {}]", appt.getReason(), appt.getDate(), appt.getPatient().getSsn());
         }
 
         HospitalUtils.recordUsage("Bulk create appointments");
@@ -77,7 +77,7 @@ public class HospitalServiceImpl implements HospitalService {
     public void deleteAppointmentsBySSN(String ssn) {
         Patient patient = patientRepo.findBySsn(ssn)
                 .orElseThrow(() -> new ResourceNotFoundException("No appointments found for patient with SSN: " + ssn));
-        List<Appointment> appointments = patient.appointments;
+        List<Appointment> appointments = patient.getAppointments();
         appointmentRepo.deleteAll(appointments);
 
     }
