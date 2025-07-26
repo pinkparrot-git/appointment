@@ -1,0 +1,33 @@
+/target/
+/build/
+/gradle/
+.gradle/
+gradlew
+gradlew.bat
+
+.idea/
+*.log
+*.class
+
+/out/
+/src/main/generated/
+
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+.ai
