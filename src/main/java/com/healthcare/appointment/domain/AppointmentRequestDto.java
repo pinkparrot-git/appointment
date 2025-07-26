@@ -2,15 +2,16 @@ package com.healthcare.appointment.domain;
 
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 public class AppointmentRequestDto {
     @NotBlank(message = "Patient name must not be blank")
@@ -18,9 +19,9 @@ public class AppointmentRequestDto {
     @NotBlank(message = "SSN must not be blank")
     private String ssn;
 
-    @NotNull(message = "Reasons list cannot be null")
-    private List<String> reasons = new ArrayList<>();
+    @NotEmpty(message = "Reasons list cannot be null")
+    private List<String> reasons;
 
-    @NotNull(message = "Dates list cannot be null")
+    @NotEmpty(message = "Dates list cannot be null")
     private List<LocalDate> dates;
 }

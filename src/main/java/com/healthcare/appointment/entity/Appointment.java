@@ -1,19 +1,16 @@
 package com.healthcare.appointment.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
-public class Appointment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Appointment extends BaseEntity {
     private String reason;
     private String date;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,16 +26,4 @@ public class Appointment {
         this.patient = patient;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Appointment)) return false;
-        Appointment other = (Appointment) o;
-        return id != null && id.equals(other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

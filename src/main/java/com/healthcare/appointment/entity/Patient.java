@@ -5,16 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
-public class Patient {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Patient extends BaseEntity {
     private String name;
     @Column(unique = true, nullable = false)
     private String ssn;
@@ -29,16 +24,4 @@ public class Patient {
         this.ssn = ssn;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Patient)) return false;
-        Patient other = (Patient) o;
-        return id != null && id.equals(other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }
