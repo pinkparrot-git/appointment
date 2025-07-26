@@ -1,14 +1,17 @@
 package com.healthcare.appointment.controller;
 
-import com.healthcare.appointment.entity.Appointment;
-import com.healthcare.appointment.service.HospitalServiceImpl;
 import com.healthcare.appointment.Utility.HospitalUtils;
-
+import com.healthcare.appointment.domain.AppointmentRequestDto;
+import com.healthcare.appointment.domain.AppointmentResponseDto;
+import com.healthcare.appointment.service.HospitalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/appointment")
@@ -26,7 +28,7 @@ import java.util.Map;
 @Slf4j
 public class AppointmentController {
 
-    private final HospitalServiceImpl hospitalService;
+    private final HospitalService hospitalService;
 
     /**
      * Example: {
@@ -40,22 +42,18 @@ public class AppointmentController {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Appointments created",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Appointment.class))),
+                                    schema = @Schema(implementation = AppointmentResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid request body")
             }
     )
     @PostMapping("/bulk")
-    public ResponseEntity<List<Appointment>> createBulkAppointments(
-            @RequestParam String patientName,
-            @RequestParam String ssn,
-            @RequestBody Map<String, List<String>> payload
+    public ResponseEntity<List<AppointmentResponseDto>> createBulkAppointments(
+            @RequestBody @Valid AppointmentRequestDto requestDto
     ) {
-        List<String> reasons = payload.get("reasons");
-        List<String> dates = payload.get("dates");
 
         HospitalUtils.recordUsage("Bulk appointments creation triggered");
-        List<Appointment> createdAppointments = hospitalService.bulkCreateAppointments(patientName, ssn, reasons, dates);
-        return new ResponseEntity<>(createdAppointments, HttpStatus.OK);
+        List<AppointmentResponseDto> createdAppointments = hospitalService.bulkCreateAppointments(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAppointments);
     }
 
     @Operation(
@@ -63,11 +61,15 @@ public class AppointmentController {
             description = "Fetches appointments filtered by a reason keyword. If no reason is provided, returns all.",
             responses = @ApiResponse(responseCode = "200", description = "List of appointments",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Appointment.class)))
+                            schema = @Schema(implementation = AppointmentResponseDto.class)))
     )
     @GetMapping
-    public ResponseEntity<List<Appointment>> getAppointmentsByReason(@RequestParam String keyword) {
-        List<Appointment> appointments = hospitalService.getAppointmentsByReason(keyword);
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByReason(
+            @RequestParam String reason,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size
+    ) {
+        List<AppointmentResponseDto> appointments = hospitalService.getAppointmentsByReason(reason, page, size);
         return new ResponseEntity<>(appointments, HttpStatus.OK);
     }
 
@@ -80,7 +82,7 @@ public class AppointmentController {
             }
     )
     @DeleteMapping
-    public ResponseEntity<String> deleteAppointmentsBySSN(@RequestParam String ssn) {
+    public ResponseEntity<String> deleteAppointmentsBySSN(@RequestParam @NotEmpty String ssn) {
         hospitalService.deleteAppointmentsBySSN(ssn);
         return new ResponseEntity<>("Deleted all appointments for SSN: " + ssn, HttpStatus.OK);
     }
@@ -92,13 +94,13 @@ public class AppointmentController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Latest appointment found",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Appointment.class))),
+                                    schema = @Schema(implementation = AppointmentResponseDto.class))),
                     @ApiResponse(responseCode = "404", description = "No appointment found for given SSN")
             }
     )
     @GetMapping("/latest")
-    public ResponseEntity<Appointment> getLatestAppointment(@RequestParam String ssn) {
-        Appointment latest = hospitalService.findLatestAppointmentBySSN(ssn);
+    public ResponseEntity<AppointmentResponseDto> getLatestAppointment(@RequestParam @NotEmpty String ssn) {
+        AppointmentResponseDto latest = hospitalService.findLatestAppointmentBySSN(ssn);
         return new ResponseEntity<>(latest, HttpStatus.OK);
     }
 }

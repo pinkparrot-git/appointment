@@ -15,7 +15,7 @@ public class Appointment {
     public String reason;
     public String date;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id")
+    @JoinColumn(name = "patient_id", nullable = false)
     public Patient patient;
 
     public Appointment() {

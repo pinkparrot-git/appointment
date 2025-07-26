@@ -1,23 +1,16 @@
 package com.healthcare.appointment.service;
 
-import com.healthcare.appointment.entity.Appointment;
-import com.healthcare.appointment.entity.Patient;
+import com.healthcare.appointment.domain.AppointmentRequestDto;
+import com.healthcare.appointment.domain.AppointmentResponseDto;
 
 import java.util.List;
 
 public interface HospitalService {
-    List<Appointment> bulkCreateAppointments(
-            String patientName,
-            String ssn,
-            List<String> reasons,
-            List<String> dates
-    );
+    List<AppointmentResponseDto> bulkCreateAppointments(AppointmentRequestDto requestDto);
 
-    Patient findPatientBySSN(String ssn);
-
-    List<Appointment> getAppointmentsByReason(String reasonKeyword);
+    List<AppointmentResponseDto> getAppointmentsByReason(String reason, int page, int size);
 
     void deleteAppointmentsBySSN(String ssn);
 
-    Appointment findLatestAppointmentBySSN(String ssn);
+    AppointmentResponseDto findLatestAppointmentBySSN(String ssn);
 }

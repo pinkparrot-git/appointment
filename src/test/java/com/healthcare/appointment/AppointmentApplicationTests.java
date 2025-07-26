@@ -31,16 +31,16 @@ class AppointmentApplicationTests {
 	@BeforeEach
 	void setUp() {
 		restTemplate = new RestTemplate();
+		Patient savedPatient = patientRepo.save(new Patient("Test Patient", "123456789"));
+		Patient attachedPatient = patientRepo.findById(savedPatient.getId()).orElseThrow();
 
-		Patient patient = new Patient("Test Patient", "123456789");
-		patient = patientRepo.save(patient);
-
-		Appointment appointment = new Appointment("Checkup", "2025-07-26", patient);
+		Appointment appointment = new Appointment("Checkup", "2025-07-26", attachedPatient);
 		appointmentRepo.save(appointment);
+
 	}
 	@Test
 	void testSuccess() {
-        String url = "http://localhost:" + port + "/api/v1/appointment?keyword=Checkup";
+        String url = "http://localhost:" + port + "/api/v1/appointment?reason=Checkup";
 
 		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
