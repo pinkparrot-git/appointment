@@ -1,10 +1,12 @@
 package com.healthcare.appointment.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Objects;
 
 @Entity
+@Data
 public class Appointment {
 
     @Id
